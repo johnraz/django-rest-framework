@@ -73,6 +73,19 @@ def build_error_from_django_validation_error(exc_info):
 # from rest_framework import serializers
 # raise serializers.ValidationError('Value was invalid')
 
+class ValidationErrorMessage(str):
+    code = None
+
+    def __init__(self, string, code=None):
+        super(ValidationErrorMessage, self).__init__(string=string)
+        self.code = code
+
+    def __new__(self, string, code=None, *args):
+        super(ValidationErrorMessage, self).__new__(ValidationErrorMessage,
+                                                    string, *args)
+        self.code = code
+
+
 class ValidationError(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
 
@@ -80,13 +93,11 @@ class ValidationError(APIException):
         # For validation errors the 'detail' key is always required.
         # The details should always be coerced to a list if not already.
         if not isinstance(detail, dict) and not isinstance(detail, list):
-            detail = [detail]
+            detail = [ValidationErrorMessage(str(detail), code=code)]
         elif isinstance(detail, dict) or (detail and isinstance(detail[0], ValidationError)):
             assert code is None, (
                 'The `code` argument must not be set for compound errors.')
-
         self.detail = detail
-        self.code = code
 
     def __str__(self):
         return six.text_type(self.detail)

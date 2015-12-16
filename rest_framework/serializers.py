@@ -224,9 +224,8 @@ class BaseSerializer(Field):
                 return_errors = ReturnList(self._errors, serializer=self)
             elif isinstance(self._errors, dict):
                 return_errors = ReturnDict(self._errors, serializer=self)
-
             raise ValidationError(return_errors)
-
+        import ipdb;ipdb.set_trace()
         return not bool(self._errors)
 
     @property
@@ -274,6 +273,7 @@ class BaseSerializer(Field):
                     errors[field_name][sub_field_name] = []
                     for validation_error in value:
                         errors[field_name][sub_field_name].extend(validation_error.detail)
+        import ipdb;ipdb.set_trace()
         return errors
 
     @property
